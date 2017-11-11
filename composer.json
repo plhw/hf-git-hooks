@@ -1,0 +1,27 @@
+{
+    "name":        "plhw/hf-git-hooks",
+    "description": "Common Git Hooks",
+    "type":        "library",
+    "license":     "MIT",
+    "config":      {
+        "optimize-autoloader": true,
+        "sort-packages":       true
+    },
+    "suggests":    {
+        "squizlabs/php_codesniffer": "Because...",
+        "phpmd/phpmd":               "Because..."
+    },
+    "require":     {
+        "php": "^7.1"
+    },
+    "require-dev": {
+        "composer/composer":       "^1.5",
+        "symfony/console":         "^2.7 || ^3.0",
+        "plhw/hf-cs-fixer-config": "^1.0"
+    },
+    "autoload":    {
+        "psr-4": {
+            "HF\\GitHooks\\": "src/"
+        }
+    }
+}
