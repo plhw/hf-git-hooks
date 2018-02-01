@@ -179,7 +179,7 @@ class CodeQualityTool extends Application
                 continue;
             }
 
-            $phpCsFixer = new Process([VENDOR_DIR . '/bin/php-cs-fixer', 'fix', $file, '--config=.php_cs', '-v', '--dry-run', '-stop-on-violation', '--using-cache=no']);
+            $phpCsFixer = new Process([VENDOR_DIR . '/bin/php-cs-fixer', 'fix', $file, '--config=.php_cs', '-v', '--dry-run', '--stop-on-violation', '--using-cache=no']);
             $phpCsFixer->setWorkingDirectory(__DIR__ . '/../../');
             $phpCsFixer->run();
 
