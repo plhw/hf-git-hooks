@@ -8,7 +8,7 @@ require VENDOR_DIR . '/autoload.php';
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Process\ProcessBuilder;
+use Symfony\Component\Process\Process;
 
 class CodeQualityTool extends Application
 {
@@ -104,14 +104,12 @@ class CodeQualityTool extends Application
         }
 
         if ($composerJsonDetected || $composerLockDetected) {
-            $processBuilder = new ProcessBuilder(['composer', 'validate']);
-            $process        = $processBuilder->getProcess();
+            $process = new Process(['composer', 'validate']);
             $process->run();
 
             if (! $process->isSuccessful()) {
                 if (false !== strpos($process->getErrorOutput(), 'The lock file is not up to date with the latest changes in composer.json')) {
-                    $processBuilder = new ProcessBuilder(['composer', 'update', '--lock']);
-                    $process        = $processBuilder->getProcess();
+                    $process = new Process(['composer', 'update', '--lock']);
                     $process->run();
                 }
 
@@ -134,8 +132,7 @@ class CodeQualityTool extends Application
                 continue;
             }
 
-            $processBuilder = new ProcessBuilder(['php', '-l', $file]);
-            $process        = $processBuilder->getProcess();
+            $process = new Process(['php', '-l', $file]);
             $process->run();
 
             if (! $process->isSuccessful()) {
@@ -156,10 +153,9 @@ class CodeQualityTool extends Application
         $filePhpunit = VENDOR_DIR . '/../phpunit.xml';
 
         if (file_exists($filePhpunit) || file_exists($filePhpunit . '.dist')) {
-            $processBuilder = new ProcessBuilder(['php', VENDOR_DIR . '/bin/phpunit']);
-            $processBuilder->setWorkingDirectory(__DIR__ . '/../..');
-            $processBuilder->setTimeout(3600);
-            $phpunit = $processBuilder->getProcess();
+            $process = new Process(['php', VENDOR_DIR . '/bin/phpunit']);
+            $process->setWorkingDirectory(__DIR__ . '/../..');
+            $process->setTimeout(3600);
 
             $phpunit->run(function ($type, $buffer) {
                 $this->output->write($buffer);
@@ -183,9 +179,8 @@ class CodeQualityTool extends Application
                 continue;
             }
 
-            $processBuilder = new ProcessBuilder([VENDOR_DIR . '/bin/php-cs-fixer', 'fix', $file, '--config=.php_cs', '-v', '--dry-run', '-stop-on-violation', '--using-cache=no']);
-            $processBuilder->setWorkingDirectory(__DIR__ . '/../../');
-            $phpCsFixer = $processBuilder->getProcess();
+            $phpCsFixer = new Process([VENDOR_DIR . '/bin/php-cs-fixer', 'fix', $file, '--config=.php_cs', '-v', '--dry-run', '-stop-on-violation', '--using-cache=no']);
+            $phpCsFixer->setWorkingDirectory(__DIR__ . '/../../');
             $phpCsFixer->run();
 
             if (! $phpCsFixer->isSuccessful()) {

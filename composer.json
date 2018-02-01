@@ -16,7 +16,7 @@
     },
     "require-dev": {
         "composer/composer":       "^1.5",
-        "symfony/console":         "^2.7 || ^3.0",
+        "symfony/console":         "^3.4 || ^4.0",
         "plhw/hf-cs-fixer-config": "^1.0"
     },
     "autoload":    {
