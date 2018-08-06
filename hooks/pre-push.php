@@ -1,7 +1,7 @@
 #!/usr/bin/env php
 <?php
 
-define('VENDOR_DIR', __DIR__ . '/../../vendor');
+\define('VENDOR_DIR', __DIR__ . '/../../vendor');
 
 require VENDOR_DIR . '/autoload.php';
 
@@ -15,7 +15,7 @@ class CodeQualityTool extends Application
     private $output;
     private $input;
 
-    const PHP_FILES_IN_SRC     = '/^src\/(.*)(\.php)$/';
+    const PHP_FILES_IN_SRC = '/^src\/(.*)(\.php)$/';
     const PHP_FILES_IN_CLASSES = '/^classes\/(.*)(\.php)$/';
 
     public function __construct()
@@ -25,7 +25,7 @@ class CodeQualityTool extends Application
 
     public function doRun(InputInterface $input, OutputInterface $output)
     {
-        $this->input  = $input;
+        $this->input = $input;
         $this->output = $output;
 
         $output->writeln('<info>Fetching files</info>');
@@ -33,7 +33,7 @@ class CodeQualityTool extends Application
 
         $output->writeln('<info>Check composer</info>');
         if (! $this->checkComposer($files)) {
-            throw new Exception(sprintf('There is a problem with your composer (lock) file!'));
+            throw new Exception(\sprintf('There is a problem with your composer (lock) file!'));
         }
 
         $output->writeln('<info>Running PHPLint</info>');
@@ -43,7 +43,7 @@ class CodeQualityTool extends Application
 
         $output->writeln('<info>Checking code style</info>');
         if (! $this->codeStyle($files)) {
-            throw new Exception(sprintf('There are coding standards violations!'));
+            throw new Exception(\sprintf('There are coding standards violations!'));
         }
 
 //        $output->writeln('<info>Running unit tests</info>');
@@ -57,13 +57,13 @@ class CodeQualityTool extends Application
         /*
          * The SHA1 ID of an empty branch.
          */
-        define('SHA1_EMPTY', '0000000000000000000000000000000000000000');
+        \define('SHA1_EMPTY', '0000000000000000000000000000000000000000');
 
         $fileList = [];
 
         // Loop over the commits.
-        while ($commit = trim(fgets(STDIN))) {
-            list($local_ref, $local_sha, $remote_ref, $remote_sha) = explode(' ', $commit);
+        while ($commit = \trim(\fgets(STDIN))) {
+            list($local_ref, $local_sha, $remote_ref, $remote_sha) = \explode(' ', $commit);
 
             // Skip the coding standards check if we are deleting a branch or if there is
             // no local branch.
@@ -74,16 +74,16 @@ class CodeQualityTool extends Application
             // Escape shell command arguments. These should normally be safe since they
             // only contain SHA numbers, but you never know.
             foreach (['local_sha', 'remote_sha'] as $argument) {
-                $$argument = escapeshellcmd($$argument);
+                $$argument = \escapeshellcmd($$argument);
             }
 
-            $command  = "git diff-tree --no-commit-id --name-only -r '$local_sha' '$remote_sha'";
-            $fileList = array_merge($fileList, explode("\n", `$command`));
+            $command = "git diff-tree --no-commit-id --name-only -r '$local_sha' '$remote_sha'";
+            $fileList = \array_merge($fileList, \explode("\n", `$command`));
         }
 
         // Remove duplicates, empty lines and files that no longer exist in the branch.
-        $fileList = array_unique(array_filter($fileList, function ($file) {
-            return ! empty($file) && file_exists($file);
+        $fileList = \array_unique(\array_filter($fileList, function ($file) {
+            return ! empty($file) && \file_exists($file);
         }));
 
         return $fileList;
@@ -108,12 +108,12 @@ class CodeQualityTool extends Application
             $process->run();
 
             if (! $process->isSuccessful()) {
-                if (false !== strpos($process->getErrorOutput(), 'The lock file is not up to date with the latest changes in composer.json')) {
+                if (false !== \strpos($process->getErrorOutput(), 'The lock file is not up to date with the latest changes in composer.json')) {
                     $process = new Process(['composer', 'update', '--lock']);
                     $process->run();
                 }
 
-                $this->output->writeln(sprintf('<error>%s</error>', trim($process->getErrorOutput())));
+                $this->output->writeln(\sprintf('<error>%s</error>', \trim($process->getErrorOutput())));
 
                 return false;
             }
@@ -124,11 +124,11 @@ class CodeQualityTool extends Application
 
     private function phpLint(array $files): bool
     {
-        $needle  = '/(\.php)|(\.inc)$/';
+        $needle = '/(\.php)|(\.inc)$/';
         $succeed = true;
 
         foreach ($files as $file) {
-            if (! preg_match($needle, $file)) {
+            if (! \preg_match($needle, $file)) {
                 continue;
             }
 
@@ -137,7 +137,7 @@ class CodeQualityTool extends Application
 
             if (! $process->isSuccessful()) {
                 $this->output->writeln($file);
-                $this->output->writeln(sprintf('<error>%s</error>', trim($process->getErrorOutput())));
+                $this->output->writeln(\sprintf('<error>%s</error>', \trim($process->getErrorOutput())));
 
                 if ($succeed) {
                     $succeed = false;
@@ -152,7 +152,7 @@ class CodeQualityTool extends Application
     {
         $filePhpunit = VENDOR_DIR . '/../phpunit.xml';
 
-        if (file_exists($filePhpunit) || file_exists($filePhpunit . '.dist')) {
+        if (\file_exists($filePhpunit) || \file_exists($filePhpunit . '.dist')) {
             $process = new Process(['php', VENDOR_DIR . '/bin/phpunit']);
             $process->setWorkingDirectory(__DIR__ . '/../..');
             $process->setTimeout(3600);
@@ -164,7 +164,7 @@ class CodeQualityTool extends Application
             return $phpunit->isSuccessful();
         }
 
-        $this->output->writeln(sprintf('<fg=yellow>%s</>', 'Not PHPUnit!'));
+        $this->output->writeln(\sprintf('<fg=yellow>%s</>', 'Not PHPUnit!'));
 
         return true;
     }
@@ -172,10 +172,10 @@ class CodeQualityTool extends Application
     private function codeStyle(array $files): bool
     {
         $succeed = true;
-        $needle  = self::PHP_FILES_IN_SRC;
+        $needle = self::PHP_FILES_IN_SRC;
 
         foreach ($files as $file) {
-            if (! preg_match($needle, $file)) {
+            if (! \preg_match($needle, $file)) {
                 continue;
             }
 
@@ -184,7 +184,7 @@ class CodeQualityTool extends Application
             $phpCsFixer->run();
 
             if (! $phpCsFixer->isSuccessful()) {
-                $this->output->writeln(sprintf('<error>%s</error>', trim($phpCsFixer->getOutput())));
+                $this->output->writeln(\sprintf('<error>%s</error>', \trim($phpCsFixer->getOutput())));
 
                 if ($succeed) {
                     $succeed = false;

@@ -23,5 +23,12 @@
         "psr-4": {
             "HF\\GitHooks\\": "src/"
         }
+    },
+    "scripts": {
+        "check": [
+            "@cs"
+        ],
+        "cs": "php-cs-fixer fix -v --diff --dry-run",
+        "cs-fix": "php-cs-fixer fix -v --diff"
     }
 }
