@@ -20,7 +20,6 @@ declare(strict_types=1);
 namespace HF\GitHooks;
 
 use Composer\Script\Event;
-use Exception;
 
 \define('ROOT_DIR', __DIR__ . '/../../../../');
 
@@ -42,7 +41,7 @@ class Hooks
     public static function postHooks(Event $event): bool
     {
         if (! \file_exists(ROOT_DIR . '.git')) {
-            throw new Exception(\sprintf('Local GIT repository not found'));
+            return true;
         }
 
         // not everywhere hooks are available (gitlab, travis?), so bail
