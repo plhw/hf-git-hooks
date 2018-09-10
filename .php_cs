@@ -17,7 +17,7 @@
 
 declare(strict_types=1);
 
-$config = new HF\CS\Config();
+$config = new \HF\CS\Config();
 $config->getFinder()->in(__DIR__)->append(['.php_cs']);
 
 $cacheDir = \getenv('TRAVIS') ? \getenv('HOME') . '/.php-cs-fixer' : __DIR__;
