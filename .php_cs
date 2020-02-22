@@ -8,7 +8,7 @@
  *
  * @see       https://plhw.nl/
  *
- * @copyright Copyright (c) 2010 - 2018 bushbaby multimedia. (https://bushbaby.nl)
+ * @copyright Copyright (c) 2010 bushbaby multimedia. (https://bushbaby.nl)
  * @author    Bas Kamer <bas@bushbaby.nl>
  * @license   Proprietary License
  *

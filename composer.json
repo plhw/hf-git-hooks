@@ -7,16 +7,12 @@
         "optimize-autoloader": true,
         "sort-packages":       true
     },
-    "suggests":    {
-        "squizlabs/php_codesniffer": "Because...",
-        "phpmd/phpmd":               "Because..."
-    },
     "require":     {
         "php": "^7.1"
     },
     "require-dev": {
-        "composer/composer":       "^1.5",
-        "symfony/console":         "^3.4 || ^4.0",
+        "composer/composer":       "^1.7",
+        "symfony/console":         "^3.4 || ^4.0 || ^5.0",
         "plhw/hf-cs-fixer-config": "^1.0"
     },
     "autoload":    {

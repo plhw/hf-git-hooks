@@ -8,7 +8,7 @@
  *
  * @see       https://plhw.nl/
  *
- * @copyright Copyright (c) 2010 - 2018 bushbaby multimedia. (https://bushbaby.nl)
+ * @copyright Copyright (c) 2010 bushbaby multimedia. (https://bushbaby.nl)
  * @author    Bas Kamer <bas@bushbaby.nl>
  * @license   Proprietary License
  *
@@ -21,14 +21,14 @@ namespace HF\GitHooks;
 
 use Composer\Script\Event;
 
-\define('ROOT_DIR', __DIR__ . '/../../../../');
-
 class Hooks
 {
+    private static $rootDir = __DIR__ . '/../../../../';
+
     public static function preHooks(Event $event): bool
     {
         $io = $event->getIO();
-        $gitHook = ROOT_DIR . '.git/hooks/pre-push';
+        $gitHook = self::$rootDir . '.git/hooks/pre-push';
 
         if (\file_exists($gitHook)) {
             \unlink($gitHook);
@@ -40,18 +40,18 @@ class Hooks
 
     public static function postHooks(Event $event): bool
     {
-        if (! \file_exists(ROOT_DIR . '.git')) {
+        if (! \file_exists(self::$rootDir . '.git')) {
             return true;
         }
 
         // not everywhere hooks are available (gitlab, travis?), so bail
-        if (! \is_dir(ROOT_DIR . '.git/hooks')) {
+        if (! \is_dir(self::$rootDir . '.git/hooks')) {
             return true;
         }
 
         $io = $event->getIO();
-        $gitHook = ROOT_DIR . '.git/hooks/pre-push';
-        $docHook = ROOT_DIR . 'vendor/plhw/hf-git-hooks/hooks/pre-push.php';
+        $gitHook = self::$rootDir . '.git/hooks/pre-push';
+        $docHook = self::$rootDir . 'vendor/plhw/hf-git-hooks/hooks/pre-push.php';
 
         \copy($docHook, $gitHook);
         \chmod($gitHook, 0777);

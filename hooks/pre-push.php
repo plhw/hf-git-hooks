@@ -1,10 +1,39 @@
 #!/usr/bin/env php
 <?php
 
-\define('VENDOR_DIR', __DIR__ . '/../../vendor');
+/**
+ * Project 'Healthy Feet' by Podolab Hoeksche Waard.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ *
+ * @see       https://plhw.nl/
+ *
+ * @copyright Copyright (c) 2010 bushbaby multimedia. (https://bushbaby.nl)
+ * @author    Bas Kamer <bas@bushbaby.nl>
+ * @license   Proprietary License
+ *
+ * @package   plhw/hf-git-hooks
+ */
 
-require VENDOR_DIR . '/autoload.php';
+declare(strict_types=1);
 
+namespace HF\GitHooks;
+
+(function () {
+    $dir = realpath(__DIR__);
+    while (! file_exists($dir . '/vendor/autoload.php')) {
+        if ($dir === '/') {
+            throw new Exception('No vendor/autoload.php detected...');
+        }
+
+        $dir = dirname($dir);
+    }
+
+    require $dir . '/vendor/autoload.php';
+})();
+
+use Exception;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -12,7 +41,10 @@ use Symfony\Component\Process\Process;
 
 class CodeQualityTool extends Application
 {
+    /** @var OutputInterface */
     private $output;
+
+    /** @var InputInterface */
     private $input;
 
     const PHP_FILES_IN_SRC = '/^src\/(.*)(\.php)$/';
@@ -20,7 +52,7 @@ class CodeQualityTool extends Application
 
     public function __construct()
     {
-        parent::__construct('Code Quality Tool', '1.0.0');
+        parent::__construct('Code Tool', '1.0.1');
     }
 
     public function doRun(InputInterface $input, OutputInterface $output)
@@ -63,7 +95,7 @@ class CodeQualityTool extends Application
 
         // Loop over the commits.
         while ($commit = \trim(\fgets(STDIN))) {
-            list($local_ref, $local_sha, $remote_ref, $remote_sha) = \explode(' ', $commit);
+            [$local_ref, $local_sha, $remote_ref, $remote_sha] = \explode(' ', $commit);
 
             // Skip the coding standards check if we are deleting a branch or if there is
             // no local branch.
@@ -150,18 +182,18 @@ class CodeQualityTool extends Application
 
     private function unitTests(): bool
     {
-        $filePhpunit = VENDOR_DIR . '/../phpunit.xml';
+        $filePhpunit = 'phpunit.xml';
 
         if (\file_exists($filePhpunit) || \file_exists($filePhpunit . '.dist')) {
-            $process = new Process(['php', VENDOR_DIR . '/bin/phpunit']);
+            $process = new Process(['composer', 'exec', 'phpunit']);
             $process->setWorkingDirectory(__DIR__ . '/../..');
             $process->setTimeout(3600);
 
-            $phpunit->run(function ($type, $buffer) {
+            $process->run(function ($type, $buffer) {
                 $this->output->write($buffer);
             });
 
-            return $phpunit->isSuccessful();
+            return $process->isSuccessful();
         }
 
         $this->output->writeln(\sprintf('<fg=yellow>%s</>', 'Not PHPUnit!'));
@@ -179,7 +211,7 @@ class CodeQualityTool extends Application
                 continue;
             }
 
-            $phpCsFixer = new Process([VENDOR_DIR . '/bin/php-cs-fixer', 'fix', $file, '--config=.php_cs', '-v', '--dry-run', '--stop-on-violation', '--using-cache=no']);
+            $phpCsFixer = new Process(['composer', 'exec', 'php-cs-fixer', 'fix', $file, '--config=.php_cs', '-v', '--dry-run', '--stop-on-violation', '--using-cache=no']);
             $phpCsFixer->setWorkingDirectory(__DIR__ . '/../../');
             $phpCsFixer->run();
 
