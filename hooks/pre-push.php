@@ -12,8 +12,6 @@
  * @copyright Copyright (c) 2010 bushbaby multimedia. (https://bushbaby.nl)
  * @author    Bas Kamer <bas@bushbaby.nl>
  * @license   Proprietary License
- *
- * @package   plhw/hf-git-hooks
  */
 
 declare(strict_types=1);
@@ -21,13 +19,13 @@ declare(strict_types=1);
 namespace HF\GitHooks;
 
 (function () {
-    $dir = realpath(__DIR__);
-    while (! file_exists($dir . '/vendor/autoload.php')) {
-        if ($dir === '/') {
+    $dir = \realpath(__DIR__);
+    while (! \file_exists($dir . '/vendor/autoload.php')) {
+        if ('/' === $dir) {
             throw new Exception('No vendor/autoload.php detected...');
         }
 
-        $dir = dirname($dir);
+        $dir = \dirname($dir);
     }
 
     require $dir . '/vendor/autoload.php';
@@ -47,12 +45,9 @@ class CodeQualityTool extends Application
     /** @var InputInterface */
     private $input;
 
-    const PHP_FILES_IN_SRC = '/^src\/(.*)(\.php)$/';
-    const PHP_FILES_IN_CLASSES = '/^classes\/(.*)(\.php)$/';
-
     public function __construct()
     {
-        parent::__construct('Code Tool', '1.0.1');
+        parent::__construct('Code Tool', '0.2.2');
     }
 
     public function doRun(InputInterface $input, OutputInterface $output)
@@ -94,7 +89,9 @@ class CodeQualityTool extends Application
         $fileList = [];
 
         // Loop over the commits.
-        while ($commit = \trim(\fgets(STDIN))) {
+        while ($commit = \fgets(STDIN)) {
+            $commit = \trim($commit);
+
             [$local_ref, $local_sha, $remote_ref, $remote_sha] = \explode(' ', $commit);
 
             // Skip the coding standards check if we are deleting a branch or if there is
@@ -110,7 +107,13 @@ class CodeQualityTool extends Application
             }
 
             $command = "git diff-tree --no-commit-id --name-only -r '$local_sha' '$remote_sha'";
-            $fileList = \array_merge($fileList, \explode("\n", `$command`));
+            $result = `$command`;
+
+            if (null === $result) {
+                continue;
+            }
+
+            $fileList = \array_merge($fileList, \explode("\n", $result));
         }
 
         // Remove duplicates, empty lines and files that no longer exist in the branch.
@@ -204,27 +207,35 @@ class CodeQualityTool extends Application
     private function codeStyle(array $files): bool
     {
         $succeed = true;
-        $needle = self::PHP_FILES_IN_SRC;
+
+        // filter non .php extensions
+        $files = \array_filter($files, function (string $file): bool {
+            return ! \preg_match('/^(.*)(\.php)$/', $file);
+        });
+
+        $processArguments = ['composer', 'exec', '-v', 'php-cs-fixer', '--', 'fix', '--config=.php_cs', '--dry-run', ' --stop-on-violation', '--using-cache=no'];
 
         foreach ($files as $file) {
-            if (! \preg_match($needle, $file)) {
-                continue;
-            }
-
-            $phpCsFixer = new Process(['composer', 'exec', 'php-cs-fixer', 'fix', $file, '--config=.php_cs', '-v', '--dry-run', '--stop-on-violation', '--using-cache=no']);
-            $phpCsFixer->setWorkingDirectory(__DIR__ . '/../../');
-            $phpCsFixer->run();
-
-            if (! $phpCsFixer->isSuccessful()) {
-                $this->output->writeln(\sprintf('<error>%s</error>', \trim($phpCsFixer->getOutput())));
-
-                if ($succeed) {
-                    $succeed = false;
-                }
-            }
+            $processArguments[] = $file;
         }
 
-        return $succeed;
+        /*
+         * Notes:
+         *
+         * - use '--' to specify further arguments to the executed command.
+         * - specify the verbose (-v) option to not run silently and see encapsultated errors.
+         *   @see https://github.com/composer/composer/issues/6122#issuecomment-276614625
+         */
+        $phpCsFixer = new Process($processArguments);
+
+        $phpCsFixer->setWorkingDirectory(__DIR__ . '/../../');
+        $phpCsFixer->run();
+
+        if (! $phpCsFixer->isSuccessful()) {
+            $this->output->writeln(\sprintf('<error>%s</error>', \trim($phpCsFixer->getErrorOutput())));
+        }
+
+        return $phpCsFixer->isSuccessful();
     }
 }
 
