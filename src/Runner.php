@@ -135,6 +135,7 @@ class Runner extends Application
 
         if ($composerJsonDetected || $composerLockDetected) {
             $process = new Process(['composer', 'validate']);
+            $process->setWorkingDirectory(\getcwd());
             $process->run();
 
             if (! $process->isSuccessful()) {
@@ -184,7 +185,7 @@ class Runner extends Application
 
         if (\file_exists($filePhpunit) || \file_exists($filePhpunit . '.dist')) {
             $process = new Process(['composer', 'exec', 'phpunit']);
-            $process->setWorkingDirectory(__DIR__ . '/../..');
+            $process->setWorkingDirectory(\getcwd());
             $process->setTimeout(3600);
 
             $process->run(function ($type, $buffer) {
@@ -225,15 +226,14 @@ class Runner extends Application
          * - specify the verbose (-v) option to not run silently and see encapsultated errors.
          *   @see https://github.com/composer/composer/issues/6122#issuecomment-276614625
          */
-        $phpCsFixer = new Process($processArguments);
+        $process = new Process($processArguments);
+        $process->setWorkingDirectory(\getcwd());
+        $process->run();
 
-        $phpCsFixer->setWorkingDirectory(__DIR__ . '/../../');
-        $phpCsFixer->run();
-
-        if (! $phpCsFixer->isSuccessful()) {
-            $this->output->writeln(\sprintf('<error>%s</error>', \trim($phpCsFixer->getErrorOutput())));
+        if (! $process->isSuccessful()) {
+            $this->output->writeln(\sprintf('<error>%s</error>', \trim($process->getErrorOutput())));
         }
 
-        return $phpCsFixer->isSuccessful();
+        return $process->isSuccessful();
     }
 }
