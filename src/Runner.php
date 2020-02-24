@@ -19,12 +19,10 @@ declare(strict_types=1);
 
 namespace HF\GitHooks;
 
-use Composer\Script\Event;
 use Exception;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Terminal;
 use Symfony\Component\Process\Process;
 
 class Runner extends Application
@@ -52,21 +50,21 @@ class Runner extends Application
         $output->writeln('<info>Fetching files</info>');
         $files = $this->extractCommitedFiles();
 
-        if (in_array($this->runningHook, ['pre-push'], true)) {
+        if (\in_array($this->runningHook, ['pre-push'], true)) {
             $output->writeln('<info>Validating composer.json</info>');
             if (! $this->checkComposer($files)) {
                 throw new Exception('There are PHP syntax errors!');
             }
         }
 
-        if (in_array($this->runningHook, ['pre-push', 'pre-commit'], true)) {
+        if (\in_array($this->runningHook, ['pre-push', 'pre-commit'], true)) {
             $output->writeln('<info>Running PHPLint</info>');
             if (! $this->phpLint($files)) {
                 throw new Exception('There are PHP syntax errors!');
             }
         }
 
-        if (in_array($this->runningHook, ['pre-push', 'pre-commit'], true)) {
+        if (\in_array($this->runningHook, ['pre-push', 'pre-commit'], true)) {
             $output->writeln('<info>Checking code style</info>');
             if (! $this->codeStyle($files)) {
                 throw new Exception(\sprintf('There are coding standards violations!'));
@@ -202,8 +200,6 @@ class Runner extends Application
 
     private function codeStyle(array $files): bool
     {
-        $succeed = true;
-
         // filter non .php extensions
         $files = \array_filter($files, function (string $file): bool {
             return (bool) \preg_match('/^(.*)(\.php)$/', $file);

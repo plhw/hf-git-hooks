@@ -36,17 +36,17 @@ class Installer
 
         $io = $event->getIO();
 
-        foreach(self::$hooks as $hook) {
-            $gitHook = sprintf('%s.git/hooks/%s', self::$rootDir, $hook);
+        foreach (self::$hooks as $hook) {
+            $gitHook = \sprintf('%s.git/hooks/%s', self::$rootDir, $hook);
 
-            if (!\file_exists($gitHook)) {
+            if (! \file_exists($gitHook)) {
                 continue;
             }
 
             if (\unlink($gitHook)) {
-                $io->write(sprintf('<info>git hook "%s" removed</info>', $hook));
+                $io->write(\sprintf('<info>git hook "%s" removed</info>', $hook));
             } else {
-                $io->write(sprintf('<error>git hook "%s" could not be removed...</error>', $hook));
+                $io->write(\sprintf('<error>git hook "%s" could not be removed...</error>', $hook));
             }
         }
 
@@ -62,14 +62,14 @@ class Installer
 
         $io = $event->getIO();
 
-        foreach(self::$hooks as $hook) {
-            $gitHook = sprintf('%s.git/hooks/%s', self::$rootDir, $hook);
-            $vendorHook = sprintf('%svendor/plhw/hf-git-hooks/hooks/%s.php', self::$rootDir, $hook);
+        foreach (self::$hooks as $hook) {
+            $gitHook = \sprintf('%s.git/hooks/%s', self::$rootDir, $hook);
+            $vendorHook = \sprintf('%svendor/plhw/hf-git-hooks/hooks/%s.php', self::$rootDir, $hook);
 
             if (\copy($vendorHook, $gitHook) && \chmod($gitHook, 0777)) {
-                $io->write(sprintf('<info>git hook "%s" installed</info>', $hook));
+                $io->write(\sprintf('<info>git hook "%s" installed</info>', $hook));
             } else {
-                $io->write(sprintf('<error>git hook "%s" could not be installed...</error>', $hook));
+                $io->write(\sprintf('<error>git hook "%s" could not be installed...</error>', $hook));
             }
         }
 
