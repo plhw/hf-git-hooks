@@ -17,9 +17,9 @@ Add the following to your composer.json file.
 
 ```
 "scripts": {
-   	"pre-update-cmd": "HF\\GitHooks\\Hooks::preHooks",
-   	"pre-install-cmd": "HF\\GitHooks\\Hooks::preHooks",
-	"post-update-cmd": "HF\\GitHooks\\Hooks::postHooks",
-	"post-install-cmd": "HF\\GitHooks\\Hooks::postHooks"
+   	"pre-update-cmd": "HF\\GitHooks\\Installer::preHooks",
+   	"pre-install-cmd": "HF\\GitHooks\\Installer::preHooks",
+	"post-update-cmd": "HF\\GitHooks\\Installer::postHooks",
+	"post-install-cmd": "HF\\GitHooks\\Installer::postHooks"
 }
 ```

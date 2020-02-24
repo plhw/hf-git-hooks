@@ -33,4 +33,5 @@ use Exception;
     require $dir . '/vendor/autoload.php';
 })();
 
-return (new Runner('pre-push'))->run();
+
+return (new Runner('pre-commit'))->run();
