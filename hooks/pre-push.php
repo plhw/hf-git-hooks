@@ -30,6 +30,7 @@ use Exception;
         $dir = \dirname($dir);
     }
 
+    \chdir($dir);
     require $dir . '/vendor/autoload.php';
 })();
 

@@ -23,8 +23,6 @@ use Composer\Script\Event;
 
 class Installer
 {
-    public static $version = '0.3.3';
-
     private static $rootDir = __DIR__ . '/../../../../';
 
     private static $hooks = ['pre-push', 'pre-commit'];
